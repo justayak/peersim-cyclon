@@ -20,6 +20,7 @@ public class NodeWrapper {
 		NodeWrapper nw = new NodeWrapper(node);
 		nw.age = age;
 		nw.uploadCapacity = uploadCapacity;
+		nw.coord = (VivaldiCoordinate) coord.clone();
 		return nw;
 	}
 
