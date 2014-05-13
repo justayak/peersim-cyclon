@@ -9,7 +9,7 @@ public class NodeWrapper {
 	public int age;
 	public VivaldiCoordinate coord;
 	public double distance;
-	public int uploadCapacity;
+	public double uploadCapacity;
 
 	public NodeWrapper(Node node) {
 		this.node = node;

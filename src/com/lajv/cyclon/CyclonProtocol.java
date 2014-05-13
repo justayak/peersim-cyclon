@@ -2,6 +2,7 @@ package com.lajv.cyclon;
 
 import java.util.LinkedList;
 
+import com.lajv.NetworkNode;
 import com.lajv.NodeWrapper;
 import com.lajv.vivaldi.VivaldiCoordinate;
 import com.lajv.vivaldi.VivaldiProtocol;
@@ -51,7 +52,6 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 
 	private static int maxCacheSize;
 	private static int l;
-	private int uploadCapacity;
 
 	private String prefix;
 	protected VivaldiCoordinate coord;
@@ -62,7 +62,6 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		l = Configuration.getInt(prefix + "." + PAR_L);
 		cache = new LinkedList<NodeWrapper>();
 		bootstrapPeers = new LinkedList<Node>();
-		uploadCapacity = 0;
 	}
 
 	// --------------------------------------------------------------------
@@ -76,20 +75,11 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		} // never happens
 		c.cache = new LinkedList<NodeWrapper>();
 		c.bootstrapPeers = new LinkedList<Node>();
-		c.uploadCapacity = 0;
 		return c;
 	}
 
 	// ====================== helper methods ==============================
 	// ====================================================================
-
-	public void setUploadCapacity(int uploadCapacity) {
-		this.uploadCapacity = uploadCapacity;
-	}
-
-	public int getUploadCapacity() {
-		return uploadCapacity;
-	}
 
 	private NodeWrapper increasePeerAgeAndRemoveOldest() {
 		int maxAge = 0;
@@ -170,7 +160,7 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 			coord = vivaldiProt.getCoord();
 		}
 		me.coord = (VivaldiCoordinate) coord.clone();
-		me.uploadCapacity = uploadCapacity;
+		me.uploadCapacity = ((NetworkNode) node).location.getUploadCapacity();
 		return me;
 	}
 
