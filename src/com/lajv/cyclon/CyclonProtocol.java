@@ -7,6 +7,7 @@ import com.lajv.NodeWrapper;
 
 import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Node;
 
@@ -40,18 +41,15 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	/** Neighbors currently in the cache */
 	private LinkedList<NodeWrapper> cache;
 	private LinkedList<Node> bootstrapPeers;
-	private int maxCacheSize;
-	private Random rnd;
 
-	private int l;
+	private static int maxCacheSize;
+	private static int l;
 
 	public CyclonProtocol(String prefix) {
 		maxCacheSize = Configuration.getInt(prefix + "." + PAR_CACHE);
 		l = Configuration.getInt(prefix + "." + PAR_L);
-		int seed = Configuration.getInt(PAR_RAND_SEED);
 		cache = new LinkedList<NodeWrapper>();
 		bootstrapPeers = new LinkedList<Node>();
-		rnd = new Random(seed);
 	}
 
 	// --------------------------------------------------------------------
@@ -115,7 +113,7 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 		NodeWrapper nw;
 
 		while(num > 0) {
-			nw = cache.remove(rnd.nextInt(cache.size()));
+			nw = cache.remove(CommonState.r.nextInt(cache.size()));
 			randomNodes.add(nw);
 			num--;
 		}
