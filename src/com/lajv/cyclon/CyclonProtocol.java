@@ -10,8 +10,7 @@ import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Node;
 
-public class CyclonProtocol implements CDProtocol ,Linkable {
-
+public class CyclonProtocol implements CDProtocol, Linkable {
 
 	// =============== static fields =======================================
 	// =====================================================================
@@ -22,12 +21,14 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 
 	/**
 	 * Cache size.
+	 * 
 	 * @config
 	 */
 	private static final String PAR_CACHE = "cache";
 
 	/**
 	 * Shuffle size.
+	 * 
 	 * @config
 	 */
 	private static final String PAR_L = "l";
@@ -54,8 +55,10 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	@Override
 	public Object clone() {
 		CyclonProtocol c = null;
-		try { c = (CyclonProtocol) super.clone(); }
-		catch( CloneNotSupportedException e ) {} // never happens
+		try {
+			c = (CyclonProtocol) super.clone();
+		} catch (CloneNotSupportedException e) {
+		} // never happens
 		c.cache = new LinkedList<NodeWrapper>();
 		c.bootstrapPeers = new LinkedList<Node>();
 		return c;
@@ -67,9 +70,9 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	// TODO: Don't forget to check that list is sorted.
 	private NodeWrapper increasePeerAgeAndRemoveOldest() {
 		int maxAge = 0;
-		int oldest = cache.size()-1;
+		int oldest = cache.size() - 1;
 
-		if(cache.size() == 0)
+		if (cache.size() == 0)
 			return null;
 
 		for (int i = 0; i < cache.size(); i++) {
@@ -82,7 +85,8 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 		return cache.remove(oldest);
 	}
 
-	private void addShuffledPeers(long selfId, LinkedList<NodeWrapper> shufflePeers, LinkedList<NodeWrapper> splicedPeers) {
+	private void addShuffledPeers(long selfId, LinkedList<NodeWrapper> shufflePeers,
+			LinkedList<NodeWrapper> splicedPeers) {
 		// Add new peers if they do not already exist
 		add_shuffle: while (shufflePeers.size() > 0) {
 			NodeWrapper nw = shufflePeers.pop();
@@ -94,22 +98,22 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 			cache.add(nw);
 		}
 
-	// Fill up with spliced peers if necessary
-	add_spliced: while (cache.size() < maxCacheSize && splicedPeers.size() > 0) {
-		NodeWrapper splicedNW = splicedPeers.pop();
-		for (NodeWrapper cacheNW : cache) {
-			if(splicedNW.node == cacheNW.node)
-				continue add_spliced;
+		// Fill up with spliced peers if necessary
+		add_spliced: while (cache.size() < maxCacheSize && splicedPeers.size() > 0) {
+			NodeWrapper splicedNW = splicedPeers.pop();
+			for (NodeWrapper cacheNW : cache) {
+				if (splicedNW.node == cacheNW.node)
+					continue add_spliced;
+			}
+			cache.add(splicedNW);
 		}
-		cache.add(splicedNW);
-	}
 	}
 
 	private LinkedList<NodeWrapper> randomSplice(int num) {
 		LinkedList<NodeWrapper> randomNodes = new LinkedList<NodeWrapper>();
 		NodeWrapper nw;
 
-		while(num > 0) {
+		while (num > 0) {
 			nw = cache.remove(CommonState.r.nextInt(cache.size()));
 			randomNodes.add(nw);
 			num--;
@@ -134,25 +138,23 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 
 		return peersToSend;
 	}
+
 	// --------------------------------------------------------------------
 
 	// ====================== Linkable implementation =====================
 	// ====================================================================
 
 	/**
-	 * Does not check if the index is out of bound (larger than
-	 * {@link #degree()})
+	 * Does not check if the index is out of bound (larger than {@link #degree()})
 	 */
-	public Node getNeighbor(int i)
-	{
+	public Node getNeighbor(int i) {
 		return cache.get(i).node;
 	}
 
 	// --------------------------------------------------------------------
 
 	/** Might be less than cache size. */
-	public int degree()
-	{
+	public int degree() {
 		return cache.size();
 	}
 
@@ -161,7 +163,7 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	@Override
 	public boolean addNeighbor(Node node) {
 
-		if(bootstrapPeers.size() < maxCacheSize){
+		if (bootstrapPeers.size() < maxCacheSize) {
 			bootstrapPeers.add(node);
 		} else {
 			bootstrapPeers.removeLast();
@@ -204,7 +206,6 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 		NodeWrapper oldestPeer = increasePeerAgeAndRemoveOldest();
 		Node otherNode = null;
 
-
 		if (oldestPeer == null) {
 			if (bootstrapPeers.size() == 0) {
 				return;
@@ -217,7 +218,7 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 		CyclonProtocol otherCyclonProt = (CyclonProtocol) (otherNode.getProtocol(protocolID));
 
 		// 2. Select l - 1 other random neighbors.
-		int numPeersToShuffle = Math.min(l-1, cache.size());
+		int numPeersToShuffle = Math.min(l - 1, cache.size());
 		LinkedList<NodeWrapper> peersToShuffle = randomSplice(numPeersToShuffle);
 
 		LinkedList<NodeWrapper> peersToSend = new LinkedList<NodeWrapper>();
@@ -231,7 +232,8 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 		peersToSend.add(new NodeWrapper(node));
 
 		// 4. Send the updated subset to peer Q.
-		LinkedList<NodeWrapper> responsePeers = otherCyclonProt.shuffle(otherNode.getID(), peersToSend);
+		LinkedList<NodeWrapper> responsePeers = otherCyclonProt.shuffle(otherNode.getID(),
+				peersToSend);
 
 		addShuffledPeers(node.getID(), responsePeers, peersToShuffle);
 	}
@@ -239,9 +241,9 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	// ===================== other public methods =========================
 	// ====================================================================
 
-	public String toString()
-	{
-		if( cache == null ) return "DEAD!";
+	public String toString() {
+		if (cache == null)
+			return "DEAD!";
 
 		StringBuffer sb = new StringBuffer();
 
@@ -256,4 +258,3 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	}
 
 }
-
