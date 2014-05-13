@@ -10,10 +10,15 @@ public class NodeWrapper {
 		this.node = node;
 		this.age = 0;
 	}
-	
+
 	public NodeWrapper cyclonCopy() {
 		NodeWrapper nw = new NodeWrapper(node);
 		nw.age = age;
 		return nw;
+	}
+
+	@Override
+	public String toString() {
+		return "("+node.getID()+")";
 	}
 }

@@ -31,7 +31,7 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	 * @config
 	 */
 	private static final String PAR_L = "l";
-	
+
 	private static final String PAR_RAND_SEED = "random.seed";
 
 	// =================== fields ==========================================
@@ -42,7 +42,7 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	private LinkedList<Node> bootstrapPeers;
 	private int maxCacheSize;
 	private Random rnd;
-	
+
 	private int l;
 
 	public CyclonProtocol(String prefix) {
@@ -99,13 +99,15 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 			cache.add(nw);
 		}
 
-		// Fill up with spliced peers if necessary
-		while (cache.size() < maxCacheSize && splicedPeers.size() > 0) {
-			NodeWrapper nw = splicedPeers.pop();
-			if (!cache.contains(nw)) {
-				cache.add(nw);
-			}
+	// Fill up with spliced peers if necessary
+	add_spliced: while (cache.size() < maxCacheSize && splicedPeers.size() > 0) {
+		NodeWrapper splicedNW = splicedPeers.pop();
+		for (NodeWrapper cacheNW : cache) {
+			if(splicedNW.node == cacheNW.node)
+				continue add_spliced;
 		}
+		cache.add(splicedNW);
+	}
 	}
 
 	private LinkedList<NodeWrapper> randomSplice(int num) {
@@ -127,12 +129,12 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 		LinkedList<NodeWrapper> peersToShuffle = randomSplice(numPeersToShuffle);
 
 		LinkedList<NodeWrapper> peersToSend = new LinkedList<NodeWrapper>();
-		
+
 		// Create list for returning to calling peer.
 		for (NodeWrapper n : peersToShuffle) {
 			peersToSend.add(n.cyclonCopy());
 		}
-		
+
 		addShuffledPeers(selfId, shufflePeers, peersToShuffle);
 
 		return peersToSend;
@@ -207,6 +209,7 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 		NodeWrapper oldestPeer = increasePeerAgeAndRemoveOldest();
 		Node otherNode = null;
 
+
 		if (oldestPeer == null) {
 			if (bootstrapPeers.size() == 0) {
 				return;
@@ -252,7 +255,7 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 		}
 		return sb.toString();
 	}
-	
+
 	public LinkedList<NodeWrapper> getCache() {
 		return cache;
 	}
