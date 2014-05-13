@@ -18,6 +18,7 @@ public class NodeWrapper {
 	public NodeWrapper cyclonCopy() {
 		NodeWrapper nw = new NodeWrapper(node);
 		nw.age = age;
+		nw.coord = (VivaldiCoordinate) coord.clone();
 		return nw;
 	}
 

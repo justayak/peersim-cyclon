@@ -3,6 +3,8 @@ package com.lajv.cyclon;
 import java.util.LinkedList;
 
 import com.lajv.NodeWrapper;
+import com.lajv.vivaldi.VivaldiCoordinate;
+import com.lajv.vivaldi.VivaldiProtocol;
 
 import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
@@ -33,6 +35,13 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 	 */
 	private static final String PAR_L = "l";
 
+	/**
+	 * The Vivaldi protocol which holds the coordinate
+	 * 
+	 * @config
+	 */
+	private static final String PAR_VIVALDI_PROT = "vivaldi_prot";
+
 	// =================== fields ==========================================
 	// =====================================================================
 
@@ -43,7 +52,11 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 	private static int maxCacheSize;
 	private static int l;
 
+	private String prefix;
+	protected VivaldiCoordinate coord;
+
 	public CyclonProtocol(String prefix) {
+		this.prefix = prefix;
 		maxCacheSize = Configuration.getInt(prefix + "." + PAR_CACHE);
 		l = Configuration.getInt(prefix + "." + PAR_L);
 		cache = new LinkedList<NodeWrapper>();
@@ -139,6 +152,17 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		return peersToSend;
 	}
 
+	private NodeWrapper me(Node node) {
+		NodeWrapper me = new NodeWrapper(node);
+		if (coord == null) {
+			int vivaldiProtID = Configuration.getPid(prefix + "." + PAR_VIVALDI_PROT);
+			VivaldiProtocol vivaldiProt = (VivaldiProtocol) node.getProtocol(vivaldiProtID);
+			coord = vivaldiProt.getCoord();
+		}
+		me.coord = (VivaldiCoordinate) coord.clone();
+		return me;
+	}
+
 	// --------------------------------------------------------------------
 
 	// ====================== Linkable implementation =====================
@@ -229,7 +253,7 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		}
 
 		// 3. Add entry of age 0 and with self node
-		peersToSend.add(new NodeWrapper(node));
+		peersToSend.add(me(node));
 
 		// 4. Send the updated subset to peer Q.
 		LinkedList<NodeWrapper> responsePeers = otherCyclonProt.shuffle(otherNode.getID(),
