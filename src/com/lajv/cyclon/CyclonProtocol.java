@@ -42,12 +42,14 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 
 	private static int maxCacheSize;
 	private static int l;
+	private int uploadCapacity;
 
 	public CyclonProtocol(String prefix) {
 		maxCacheSize = Configuration.getInt(prefix + "." + PAR_CACHE);
 		l = Configuration.getInt(prefix + "." + PAR_L);
 		cache = new LinkedList<NodeWrapper>();
 		bootstrapPeers = new LinkedList<Node>();
+		uploadCapacity = 0;
 	}
 
 	// --------------------------------------------------------------------
@@ -61,13 +63,21 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		} // never happens
 		c.cache = new LinkedList<NodeWrapper>();
 		c.bootstrapPeers = new LinkedList<Node>();
+		c.uploadCapacity = 0;
 		return c;
 	}
 
 	// ====================== helper methods ==============================
 	// ====================================================================
 
-	// TODO: Don't forget to check that list is sorted.
+	public void setUploadCapacity(int uploadCapacity) {
+		this.uploadCapacity = uploadCapacity;
+	}
+
+	public int getUploadCapacity() {
+		return uploadCapacity;
+	}
+
 	private NodeWrapper increasePeerAgeAndRemoveOldest() {
 		int maxAge = 0;
 		int oldest = cache.size() - 1;
@@ -229,7 +239,9 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		}
 
 		// 3. Add entry of age 0 and with self node
-		peersToSend.add(new NodeWrapper(node));
+		NodeWrapper self = new NodeWrapper(node);
+		self.uploadCapacity = uploadCapacity;
+		peersToSend.add(self);
 
 		// 4. Send the updated subset to peer Q.
 		LinkedList<NodeWrapper> responsePeers = otherCyclonProt.shuffle(otherNode.getID(),

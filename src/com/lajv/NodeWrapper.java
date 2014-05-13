@@ -9,6 +9,7 @@ public class NodeWrapper {
 	public int age;
 	public VivaldiCoordinate coord;
 	public double distance;
+	public int uploadCapacity;
 
 	public NodeWrapper(Node node) {
 		this.node = node;
@@ -18,6 +19,7 @@ public class NodeWrapper {
 	public NodeWrapper cyclonCopy() {
 		NodeWrapper nw = new NodeWrapper(node);
 		nw.age = age;
+		nw.uploadCapacity = uploadCapacity;
 		return nw;
 	}
 
@@ -25,11 +27,12 @@ public class NodeWrapper {
 		NodeWrapper copy = new NodeWrapper(node);
 		copy.coord = (VivaldiCoordinate) coord.clone();
 		copy.distance = distance;
+		copy.uploadCapacity = uploadCapacity;
 		return copy;
 	}
 
 	@Override
 	public String toString() {
-		return "(" + node.getID() + ")";
+		return "(" + node.getID() + ", " + uploadCapacity + ")";
 	}
 }
