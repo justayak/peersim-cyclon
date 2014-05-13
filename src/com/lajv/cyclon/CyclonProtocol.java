@@ -1,7 +1,6 @@
 package com.lajv.cyclon;
 
 import java.util.LinkedList;
-import java.util.Random;
 
 import com.lajv.NodeWrapper;
 
@@ -32,8 +31,6 @@ public class CyclonProtocol implements CDProtocol ,Linkable {
 	 * @config
 	 */
 	private static final String PAR_L = "l";
-
-	private static final String PAR_RAND_SEED = "random.seed";
 
 	// =================== fields ==========================================
 	// =====================================================================
