@@ -282,4 +282,12 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		return cache;
 	}
 
+	public void updateCoord(Node n, VivaldiCoordinate coord) {
+		for (NodeWrapper nw : cache) {
+			if (nw.node == n) {
+				nw.coord.update(coord);
+				break;
+			}
+		}
+	}
 }
