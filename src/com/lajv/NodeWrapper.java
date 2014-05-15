@@ -1,5 +1,7 @@
 package com.lajv;
 
+import java.text.DecimalFormat;
+
 import com.lajv.vivaldi.VivaldiCoordinate;
 
 import peersim.core.Node;
@@ -10,10 +12,12 @@ public class NodeWrapper {
 	public VivaldiCoordinate coord;
 	public double distance;
 	public double uploadCapacity;
+	public boolean recommendable;
 
 	public NodeWrapper(Node node) {
 		this.node = node;
 		this.age = 0;
+		this.recommendable = false;
 	}
 
 	public NodeWrapper cyclonCopy() {
@@ -34,6 +38,8 @@ public class NodeWrapper {
 
 	@Override
 	public String toString() {
-		return "(" + node.getID() + ", " + uploadCapacity + ")";
+		DecimalFormat df = new DecimalFormat("0.00");
+		return "{ id: " + node.getID() + ", coord: " + coord + ", distance: " + df.format(distance)
+				+ "}";
 	}
 }
