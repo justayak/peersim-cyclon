@@ -48,7 +48,6 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 
 	/** Neighbors currently in the cache */
 	private LinkedList<NodeWrapper> cache;
-	private LinkedList<Node> bootstrapPeers;
 
 	private static int maxCacheSize;
 	private static int l;
@@ -61,7 +60,6 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		maxCacheSize = Configuration.getInt(prefix + "." + PAR_CACHE);
 		l = Configuration.getInt(prefix + "." + PAR_L);
 		cache = new LinkedList<NodeWrapper>();
-		bootstrapPeers = new LinkedList<Node>();
 	}
 
 	// --------------------------------------------------------------------
@@ -74,7 +72,6 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 		} catch (CloneNotSupportedException e) {
 		} // never happens
 		c.cache = new LinkedList<NodeWrapper>();
-		c.bootstrapPeers = new LinkedList<Node>();
 		return c;
 	}
 
@@ -187,12 +184,8 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 
 	@Override
 	public boolean addNeighbor(Node node) {
-
-		if (bootstrapPeers.size() < maxCacheSize) {
-			bootstrapPeers.add(node);
-		} else {
-			bootstrapPeers.removeLast();
-			bootstrapPeers.add(node);
+		if (cache.size() < maxCacheSize) {
+			cache.add(new NodeWrapper(node));
 		}
 		return true;
 	}
@@ -229,16 +222,9 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 	@Override
 	public void nextCycle(Node node, int protocolID) {
 		NodeWrapper oldestPeer = increasePeerAgeAndRemoveOldest();
-		Node otherNode = null;
-
-		if (oldestPeer == null) {
-			if (bootstrapPeers.size() == 0) {
-				return;
-			}
-			otherNode = bootstrapPeers.removeLast();
-		} else {
-			otherNode = oldestPeer.node;
-		}
+		if (oldestPeer == null)
+			return;
+		Node otherNode = oldestPeer.node;
 
 		CyclonProtocol otherCyclonProt = (CyclonProtocol) (otherNode.getProtocol(protocolID));
 

@@ -3,6 +3,7 @@ package com.lajv;
 import java.text.DecimalFormat;
 
 import com.lajv.vivaldi.VivaldiCoordinate;
+import com.lajv.vivaldi.dim2d.Dim2DVivaldiCoordinate;
 
 import peersim.core.Node;
 
@@ -22,6 +23,7 @@ public class NodeWrapper {
 		this.recommendable = false;
 		responsibilityValue = 0;
 		superPeer = false;
+		coord = new Dim2DVivaldiCoordinate();
 	}
 
 	public NodeWrapper cyclonCopy() {
