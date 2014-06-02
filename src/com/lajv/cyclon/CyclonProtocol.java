@@ -185,7 +185,9 @@ public class CyclonProtocol implements CDProtocol, Linkable {
 	@Override
 	public boolean addNeighbor(Node node) {
 		if (cache.size() < maxCacheSize) {
-			cache.add(new NodeWrapper(node));
+			NodeWrapper nw = new NodeWrapper(node);
+			nw.uploadCapacity = ((NetworkNode) node).location.getUploadCapacity();
+			cache.add(nw);
 		}
 		return true;
 	}
